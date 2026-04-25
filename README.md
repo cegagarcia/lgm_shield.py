@@ -3,21 +3,48 @@
 # Autor: César Octavio García Martínez
 # ==========================================================
 
+# ==========================================================
+# LGM-SENTINEL RISK ENGINE v4.0
+# Autor: César Octavio García Martínez
+# Ubicación: Cali, Colombia
+# ==========================================================
+
 import numpy as np
 
-def teorema_cega_ivp(v, c, E, r, k):
+class LGMEngine:
     """
-    Fórmula: IVP = (v*c + E) / sqrt(r*k)
-    v: función de cambio/vector, c: constante, E: Entropía/Emoción
-    r: Resistencia, k: Rigidez
+    Motor de detección de fatiga basado en el Teorema Cega.
+    Calcula el Índice de Verosimilitud Percibida (IVP).
     """
-    ivp = (v * c + E) / np.sqrt(r * k)
-    return ivp
+    def _init_(self, threshold=1.5):
+        self.gamma = 1e5  # Salto de Heaviside (Impacto)
+        self.threshold = threshold # Umbral de ruptura lógica
 
-# Verificación de Salto de Heaviside
-def alerta_heaviside(actual, previo, umbral=1.5):
-    if abs(actual - previo) > umbral:
-        return "ALERTA CRÍTICA: SALIDA TOTAL DEL MERCADO"
-    return "ESTADO: ESTABLE"
+    def calculate_ivp(self, v, c, E, r, k):
+        """
+        Implementación de la fórmula: 
+        IVP = (v * c + E) / sqrt(r * k)
+        """
+        numerator = (v * c) + E
+        denominator = np.sqrt(r * k)
+        return numerator / denominator
 
-print("Motor LGM v4.0 cargado satisfactoriamente.")
+    def evaluate_signal(self, current_ivp, previous_ivp):
+        """
+        Evalúa el diferencial para disparar la alerta de Heaviside.
+        """
+        delta = np.abs(current_ivp - previous_ivp)
+        if delta > self.threshold:
+            return {
+                "signal": "ALERTA CRÍTICA: SALIDA TOTAL",
+                "status": "HEAVISIDE TRIGGERED",
+                "impact": self.gamma
+            }
+        return {"signal": "ESTADO: ESTABLE", "status": "STABLE", "impact": 1}
+
+if _name_ == "_main_":
+    # Verificación de carga del sistema
+    print("------------------------------------------")
+    print("LGM Sentinel v4.0 | Engine Loaded")
+    print("Autor: César Octavio García Martínez")
+    print("------------------------------------------")
